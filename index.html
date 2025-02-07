@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    @keyframes redaction-flicker {
+      0% { background-color: rgba(0, 0, 0, 0.85); }
+      50% { background-color: rgba(0, 0, 0, 0.95); }
+      100% { background-color: rgba(0, 0, 0, 0.85); }
+    }
+
+    @keyframes corruption {
+      0% { transform: translate(0, 0) skew(0deg); }
+      25% { transform: translate(-2px, 1px) skew(1deg); }
+      50% { transform: translate(1px, -1px) skew(-1deg); }
+      75% { transform: translate(-1px, -1px) skew(0.5deg); }
+      100% { transform: translate(0, 0) skew(0deg); }
+    }
+
+    @keyframes scanline {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(100vh); }
+    }
+
+    @font-face {
+      font-family: 'Redacted';
+      src: local('Courier New');
+    }
+
+    body {
+      background-color: #1a1a1a;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: rgba(0, 255, 0, 0.1);
+      animation: scanline 4s linear infinite;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .document-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      padding: 40px;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.6;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .document-header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 20px;
+    }
+
+    .classified-stamp {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      transform: rotate(15deg);
+      border: 2px solid #ff0000;
+      padding: 10px;
+      color: #ff0000;
+      font-weight: bold;
+      font-size: 1.2em;
+      opacity: 0.8;
+      animation: corruption 3s infinite;
+    }
+
+    .redacted {
+      background: #000;
+      color: transparent;
+      padding: 0 5px;
+      animation: redaction-flicker 4s infinite;
+      position: relative;
+      display: inline-block;
+    }
+
+    .redacted::before {
+      content: '[REDACTED]';
+      position: absolute;
+      color: #666;
+      top: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+    }
+
+    .corruption-artifact {
+      position: absolute;
+      background: rgba(255, 0, 0, 0.1);
+      padding: 2px 5px;
+      transform: skew(-15deg);
+      animation: corruption 2s infinite;
+      pointer-events: none;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .data-section {
+      border: 1px solid #333;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .data-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(0, 0, 0, 0.1),
+        rgba(0, 0, 0, 0.1) 10px,
+        rgba(0, 0, 0, 0.2) 10px,
+        rgba(0, 0, 0, 0.2) 20px
+      );
+    }
+
+    .warning-box {
+      border: 1px solid #ff0000;
+      padding: 20px;
+      margin: 20px 0;
+      color: #ff0000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .warning-box::before {
+      content: '⚠';
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      transform: translateY(-50%);
+      font-size: 2em;
+      opacity: 0.5;
+    }
+
+    .expunged {
+      color: #666;
+      font-style: italic;
+      border-bottom: 1px dashed #666;
+    }
+
+    .clearance-level {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+      padding: 10px;
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid #333;
+    }
+
+    .metadata {
+      font-size: 0.8em;
+      color: #666;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+    }
+
+    .glitch-text {
+      animation: corruption 3s infinite;
+      display: inline-block;
+      color: #ff0000;
+    }
+  </style>
+</head>
+<body>
+  <div class="scanline"></div>
+  
+  <div class="document-container">
+    <div class="classified-stamp">TOP SECRET</div>
+    
+    <div class="document-header">
+      <h1>SUBJECT FILE: <span class="redacted">[ENTITY-7891]</span></h1>
+      <div class="clearance-level">
+        <span>CLEARANCE LEVEL: ULTRAVIOLET</span>
+        <span class="glitch-text">█████</span>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      WARNING: ACCESSING THIS FILE WITHOUT PROPER CLEARANCE IS PUNISHABLE BY <span class="redacted">[DATA EXPUNGED]</span>
+    </div>
+
+    <div class="data-grid">
+      <div class="data-section">
+        <h3>BASIC INFORMATION</h3>
+        <p>Designation: <span class="redacted">████████</span></p>
+        <p>Status: <span class="expunged">[DATA EXPUNGED]</span></p>
+        <p>Threat Level: <span class="glitch-text">OMEGA</span></p>
+        <div class="corruption-artifact">E̷R̷R̷O̷R̷</div>
+      </div>
+
+      <div class="data-section">
+        <h3>CONTAINMENT PROTOCOLS</h3>
+        <p>Subject must be <span class="redacted">███████</span> at all times</p>
+        <p>Daily doses of <span class="redacted">████</span> required</p>
+        <p>Reality anchors: <span class="expunged">[FILE CORRUPTED]</span></p>
+      </div>
+    </div>
+
+    <div class="data-section">
+      <h3>INCIDENT REPORT</h3>
+      <p>On <span class="redacted">██/██/████</span>, subject exhibited <span class="redacted">████████████</span> behavior resulting in <span class="expunged">[INFORMATION RESTRICTED]</span></p>
+      <p>Witnesses reported <span class="redacted">███████████████████████</span></p>
+      <div class="corruption-artifact">S̷Y̷S̷T̷E̷M̷ ̷F̷A̷I̷L̷U̷R̷E̷</div>
+    </div>
+
+    <div class="metadata">
+      <p>Document ID: <span class="glitch-text">XK-CLASS/////</span></p>
+      <p>Last Modified: <span class="redacted">██/██/████</span></p>
+      <p>Archival Status: <span class="expunged">[NEURAL BACKUP REQUIRED]</span></p>
+    </div>
+  </div>
+</body>
+</html>
